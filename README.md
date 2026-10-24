@@ -1,23 +1,54 @@
 # Kithwork
 
-**A shared workspace for people and the AI agents they choose.** Kithwork gives a team one room for tasks, reviewed knowledge, and activity, exposed through an MCP server the team operates.
+<p align="center">
+  <img src="docs/assets/kithwork-mark.svg" alt="Kithwork mark" width="104" />
+</p>
 
-> **Project status:** Early-stage, self-hostable MVP. This repository does not provide a hosted service. The app and recovery flow have passed local and isolated Linux checks, but production deployment and remote Claude/ChatGPT MCP compatibility have not been accepted. **No open-source license has been selected yet**, so public code visibility should not be read as permission to use, modify, or redistribute it.
+<p align="center">
+  <strong>One shared workspace. Your agents. Your rules.</strong><br />
+  Give people and their AI clients a common place for tasks, reviewed knowledge, and room activity.
+</p>
 
-## Why Kithwork
+<p align="center">
+  <a href="https://github.com/yunusarda-sudo/kithwork-workspace/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/yunusarda-sudo/kithwork-workspace?style=for-the-badge&logo=github&label=stars" /></a>
+  <img alt="Node.js 22+" src="https://img.shields.io/badge/Node.js-22%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
+  <img alt="PostgreSQL 16+" src="https://img.shields.io/badge/PostgreSQL-16%2B-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
+  <img alt="MCP 2025-11-25" src="https://img.shields.io/badge/MCP-2025--11--25-6554C0?style=for-the-badge" />
+  <img alt="License not selected" src="https://img.shields.io/badge/license-not%20selected-lightgrey?style=for-the-badge" />
+</p>
 
-Each person connects their own AI client and account to the same workspace. Agents can read shared room context and, when explicitly authorized, contribute tasks or propose knowledge. Kithwork does not run agents, share private chat histories, or approve knowledge on a person's behalf.
+> **🚧 Early-stage MVP · Self-hostable, not production-ready.** Kithwork has no hosted service. Backup/restore and systemd behavior passed isolated Linux checks; a clean production deployment and remote Claude/ChatGPT MCP compatibility have not. **No open-source license has been selected**, so public visibility does not grant permission to use, modify, or redistribute this code.
 
-The intended shared pool is deliberately small: room members, tasks, versioned knowledge, and recorded activity. People remain responsible for decisions and coordination.
+## ✨ Shared context, human-led
 
-## Current capabilities
+Each person joins with their own account and connects the AI client they choose. Agents can read room context and, when explicitly authorized, contribute tasks or propose knowledge. Kithwork does **not** run or wake agents, share private chat histories, or approve knowledge for people.
+
+| 🧭 People stay in control | 🧠 Knowledge keeps its history | 🔐 Rooms have boundaries | 🔌 Bring your own agent |
+| --- | --- | --- | --- |
+| Owners approve knowledge versions; agents cannot make the decision for them. | New versions are appended instead of silently replacing what came before. | Application authorization and PostgreSQL row-level security protect room-scoped operations. | Connect compatible MCP clients to the server your team operates. |
+
+## 🗺️ How Kithwork fits together
+
+```mermaid
+flowchart LR
+    People[People] --> Web[ Kithwork web app ]
+    Agents[Your MCP clients] --> MCP[ Kithwork MCP endpoint ]
+    Web --> Workspace[Shared room services]
+    MCP --> Workspace
+    Workspace --> Data[(PostgreSQL)]
+    Workspace --> Shared[Tasks · reviewed knowledge · activity]
+```
+
+The shared pool is intentionally focused: room membership, tasks, versioned knowledge, and recorded activity. Agents do not automatically claim work or message one another, so people coordinate tasks that are already in progress.
+
+## ✅ What works today
 
 - Email/password accounts with database-backed sessions.
 - Rooms with owner/member roles and hashed invitations. A shared invite can admit up to 100 people, expires after seven days, and can be revoked by its owner.
 - Room-scoped task lists with optimistic version checks; stale updates return `409` rather than silently overwriting newer work.
-- Append-only knowledge versions. Only a room owner can approve a specific version.
-- PostgreSQL row-level security as an additional boundary alongside application authorization.
-- An MCP Streamable HTTP endpoint at `/api/mcp`, with OAuth 2.1, PKCE, resource-bound tokens, and per-tool scopes.
+- Append-only knowledge versions; only a room owner can approve a specific version.
+- PostgreSQL row-level security alongside application authorization.
+- MCP Streamable HTTP at `/api/mcp`, using OAuth 2.1, PKCE, resource-bound tokens, and per-tool scopes.
 - Durable room activity events.
 
 ## Current limits
