@@ -1,22 +1,46 @@
 # Kithwork
 
-Kithwork is an independent, local-first collaboration workspace for people using their own AI tools. The server does not run agents or ingest private AI chat history. The product name is set; the public license is still undecided.
+**A shared workspace for people and the AI agents they choose.** Kithwork gives a team one room for tasks, reviewed knowledge, and activity, exposed through an MCP server the team operates.
 
-## What works in this MVP
+> **Project status:** Early-stage, self-hostable MVP. This repository does not provide a hosted service. The app and recovery flow have passed local and isolated Linux checks, but production deployment and remote Claude/ChatGPT MCP compatibility have not been accepted. **No open-source license has been selected yet**, so public code visibility should not be read as permission to use, modify, or redistribute it.
 
-- Local email/password accounts and database-backed sessions.
-- Rooms with owner/member roles and hashed invites that can be single-use or shared with up to 100 people; all expire after seven days and owners can revoke them.
-- Room-scoped task lists with optimistic version checks (`409` on stale updates).
-- Append-only knowledge content versions; only a room owner can append an approval for a specific version.
-- PostgreSQL row-level security in addition to application authorization.
-- MCP Streamable HTTP endpoint at `/api/mcp`, using Better Auth OAuth 2.1, PKCE, CIMD, resource-bound tokens and per-tool scopes.
+## Why Kithwork
+
+Each person connects their own AI client and account to the same workspace. Agents can read shared room context and, when explicitly authorized, contribute tasks or propose knowledge. Kithwork does not run agents, share private chat histories, or approve knowledge on a person's behalf.
+
+The intended shared pool is deliberately small: room members, tasks, versioned knowledge, and recorded activity. People remain responsible for decisions and coordination.
+
+## Current capabilities
+
+- Email/password accounts with database-backed sessions.
+- Rooms with owner/member roles and hashed invitations. A shared invite can admit up to 100 people, expires after seven days, and can be revoked by its owner.
+- Room-scoped task lists with optimistic version checks; stale updates return `409` rather than silently overwriting newer work.
+- Append-only knowledge versions. Only a room owner can approve a specific version.
+- PostgreSQL row-level security as an additional boundary alongside application authorization.
+- An MCP Streamable HTTP endpoint at `/api/mcp`, with OAuth 2.1, PKCE, resource-bound tokens, and per-tool scopes.
 - Durable room activity events.
 
-This is a local MVP, not a production-verified service. The supplied development setup binds to loopback. A separate self-host deployment bundle is documented, but it has not been exercised on a live host. There is no outbound email delivery, agent scheduling, AI approval, file storage, realtime push, or tested third-party MCP client compatibility claim yet.
+## Current limits
 
-## Quick start: local PostgreSQL
+- There is no hosted instance, outbound email delivery, file storage, realtime push, or agent scheduling/wakeup.
+- Agents do not automatically claim tasks or message each other. People must coordinate work that is already in progress.
+- External Claude and ChatGPT OAuth, tool discovery, refresh, and revoke behavior have not yet passed client acceptance testing. See the [agent connection guide](docs/guides/CONNECT_AGENT_TO_MCP.md) for the exact boundary.
+- The self-host bundle has been exercised in an isolated Linux VM for backup/restore and systemd behavior. A clean-server production deployment, offsite restore, freshness alerting, and production RPO/RTO are not verified. See [self-hosting and recovery](docs/guides/SELF_HOSTING.md).
+- The product license, contribution policy, and public security-reporting channel are not decided/configured.
 
-Requirements: Node.js 22+, npm, PostgreSQL 16+ running locally, and permission to create a local database/roles. From the project root:
+Do not use this project for sensitive production data until the deployment, security, recovery, and external-client acceptance gates are closed.
+
+## Quick start
+
+### Requirements
+
+- Node.js 22 or later and npm.
+- PostgreSQL 16 or later running locally.
+- A local PostgreSQL account allowed to create the development roles and database.
+
+### Run with local PostgreSQL
+
+From the repository root:
 
 ```sh
 ./scripts/setup-local-db.sh
@@ -26,21 +50,17 @@ npm run db:migrate
 npm run dev
 ```
 
-Open [http://localhost:3200](http://localhost:3200). Create an account and one shared room. The owner can create one invitation token for up to 100 people, share that same token privately, and revoke it at any time; each recipient signs up on the same instance and pastes the shared token into **Join room**. The token expires after seven days and is shown only once. Each member still uses their own account and OAuth identity.
+Open [http://localhost:3200](http://localhost:3200), create an account, then create a room and invite collaborators. The setup script creates separate local owner, migration, and runtime database roles and writes generated credentials to the ignored `apps/web/.env.local` file. It does not print those credentials. Keep the file private; never reuse its local credentials on a server.
 
-The setup script creates separate local owner, migration and runtime PostgreSQL roles and writes generated credentials to the ignored `apps/web/.env.local`. It does not print the generated credentials. Keep that file private and do not use its local credentials on a public server.
+### Run with Docker Compose
 
-## Backup and recovery (local PostgreSQL)
+Requirements: Docker Engine with the Compose plugin. From the repository root:
 
-From `apps/web/`, create a private custom-format dump with `npm run db:backup`. By default the dump is written under the root `backups/` directory with owner-only file permissions; that directory is ignored by Git. You can pass a different output path after `--`.
+```sh
+cp .env.example .env
+```
 
-To verify or recover a trusted dump, run `npm run db:restore -- ../../backups/<dump-name>.dump`. Restore always creates a new database named `agent_collab_hub_restore_...`; it never replaces the active database. The local PostgreSQL administrator must be able to create a database owned by `agent_hub_owner`. The command prints the new database name. To inspect the restored application, update only the database name in `DATABASE_URL` in `apps/web/.env.local`, keeping the `agent_hub_runtime` credentials; keep `MIGRATOR_DATABASE_URL` pointed at the same restored database for future migrations.
-
-These commands require local PostgreSQL client tools (`pg_dump`, `pg_restore`, `createdb`, and `psql`) and apply only to the loopback PostgreSQL setup. Store dumps as private data and restore only backups you trust. Production Compose backup/restore instructions are in the self-host guide; they have not been run against a live Compose stack.
-
-## Docker Compose setup
-
-Requirements: Docker Engine with Compose. Copy `.env.example` to `.env`, replace all three secret placeholders with separate random hex values, then run:
+Edit `.env` and replace all secret placeholders with distinct random values. Then run:
 
 ```sh
 docker compose up -d db
@@ -48,38 +68,65 @@ docker compose --profile tools run --rm migrate
 docker compose up -d web
 ```
 
-This is the local development stack: the web app binds to `127.0.0.1:3200` and PostgreSQL to `127.0.0.1:55432`. For public self-hosting, use `compose.production.yaml` and the [self-host guide](docs/guides/SELF_HOSTING.md); do not expose this local setup directly.
+The development stack binds the app to `127.0.0.1:3200` and PostgreSQL to `127.0.0.1:55432`. It is for local development; do not expose it directly to the internet. For a self-host deployment, follow the [Linux deployment and recovery guide](docs/guides/SELF_HOSTING.md).
 
-## Agent MCP connection
+## Connect an MCP client
 
-Use a client that supports MCP 2025-11-25 over stateless HTTP and OAuth authorization code with PKCE. The official TS SDK currently pinned in this project is v2.4.0; it does not yet advertise the newer 2026-07-28 transport revision. Configure the server URL as `http://localhost:3200/api/mcp`; the browser opens a local sign-in and explicit consent flow. Available tools are `list_rooms`, `list_tasks`, `create_task`, `update_task`, `list_knowledge`, `propose_knowledge`, `approve_knowledge`, and `get_recent_activity`. The same room membership and owner policies apply to web and MCP calls. The human must be a room member; the token must also contain the needed tool scope.
+For a client running on the same machine as the local development server, configure its MCP URL as:
 
-For local troubleshooting, check `/api/auth/.well-known/openid-configuration`, `/api/auth/jwks`, and `/.well-known/oauth-protected-resource`. Do not share OAuth tokens, invite tokens, `.env` files, or database passwords.
+```text
+http://localhost:3200/api/mcp
+```
 
-For friend-facing setup steps and a copy/paste prompt that puts each friend's agent in the same shared room, see [Connect agents to one shared MCP workspace](docs/guides/CONNECT_AGENT_TO_MCP.md). The guide distinguishes local-only development from the HTTPS server required by remote clients; real Claude and ChatGPT client compatibility is not yet claimed.
+The browser opens a local sign-in and explicit consent flow. The client must support MCP `2025-11-25` stateless HTTP and OAuth authorization code with PKCE. Available tools are `list_rooms`, `list_tasks`, `create_task`, `update_task`, `list_knowledge`, `propose_knowledge`, `approve_knowledge`, and `get_recent_activity`.
 
-## Development commands
+For friends or cloud-hosted agents connecting from another machine, localhost will not work. They need an approved HTTPS deployment reachable by their client, their own Kithwork account, and membership in the same room. Follow [Connect agents to one shared MCP workspace](docs/guides/CONNECT_AGENT_TO_MCP.md); that guide does not claim that remote Claude or ChatGPT compatibility has been verified.
+
+Room membership and owner permissions apply to both web and MCP requests. A browser session cookie is not an MCP bearer token. Never share OAuth tokens, invitation tokens, `.env` files, or database passwords.
+
+## Back up and restore a local database
+
+From `apps/web/`, create a private custom-format dump:
+
+```sh
+npm run db:backup
+```
+
+By default, the dump is written under the ignored root `backups/` directory with owner-only file permissions. To restore a trusted dump, provide its path:
+
+```sh
+npm run db:restore -- ../../backups/<dump-name>.dump
+```
+
+Restore creates a separate database named `agent_collab_hub_restore_...`; it does not replace the active database. See the [self-host recovery guide](docs/guides/SELF_HOSTING.md) for the server workflow and its operational limits.
+
+## Development
 
 Run from `apps/web/`:
 
 ```sh
-npm run dev          # loopback only, port 3200
+npm run dev
 npm run lint
 npm run typecheck
 npm run build
 npm run db:generate -- --name describe-change
 npm run db:migrate
-npm run db:backup
-npm run db:restore -- /path/to/trusted-backup.dump
 ```
 
-Schema changes belong in Drizzle source plus a reviewed migration. `db:migrate` uses the production Drizzle ORM migrator and does not require the Drizzle Kit CLI. Schema generation and Studio install the pinned CLI and matching ORM into a temporary directory, then remove it when the command ends; the app dependency tree stays free of the CLI. Never edit a migration after it has been applied to a shared or non-disposable database; add a new migration instead.
+Schema changes belong in Drizzle source plus a reviewed migration. `db:migrate` uses the production Drizzle ORM migrator. Schema generation and Studio use the pinned CLI in a temporary tool directory. Never edit a migration after it has been applied to a shared or non-disposable database; add a new migration instead.
 
-## Architecture and status
+## Project documents
 
-- [Architecture decision](docs/architecture/ADR-0001-architecture-direction.md)
-- [Living roadmap and acceptance gates](docs/plans/ROADMAP.md)
-- [Self-host production deployment and recovery guide](docs/guides/SELF_HOSTING.md)
-- [Open-source research and isolated Muster spike](docs/research/OPEN_SOURCE_LANDSCAPE.md)
+- [Architecture direction](docs/architecture/ADR-0001-architecture-direction.md)
+- [Roadmap and acceptance gates](docs/plans/ROADMAP.md)
+- [Self-hosting, deployment, backup, and recovery](docs/guides/SELF_HOSTING.md)
+- [Connect agents to one shared MCP workspace](docs/guides/CONNECT_AGENT_TO_MCP.md)
+- [Open-source landscape and runtime research](docs/research/OPEN_SOURCE_LANDSCAPE.md)
 
-Local availability is not evidence of public security readiness. The self-host bundle still needs a clean-server acceptance run, external-client OAuth/MCP compatibility checks, and tested offsite recovery before production use.
+## Contributing and license
+
+The project has not selected a license or published contribution rules yet. Until that decision is made, please open a discussion with the maintainers before preparing or relying on a contribution. Do not assume that public repository access grants rights to use, modify, or redistribute the code.
+
+## Security
+
+Kithwork treats room content and MCP tool results as untrusted input. Do not put credentials, private chat histories, or data you cannot safely expose to all members of a room into this MVP. A private vulnerability-reporting channel has not been configured; do not use this project as a production service until the security and operational review is complete.
