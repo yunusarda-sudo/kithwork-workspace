@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agent_collab_hub
+      POSTGRES_USER: agent_hub_migrator
+      POSTGRES_PASSWORD: ${MIGRATOR_DB_PASSWORD:?Set MIGRATOR_DB_PASSWORD in .env}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Set APP_DB_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/010-runtime-role.sh:/docker-entrypoint-initdb.d/010-runtime-role.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_hub_migrator -d agent_collab_hub"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: ./apps/web
+    profiles: ["tools"]
+    environment:
+      MIGRATOR_DATABASE_URL: postgres://agent_hub_migrator:${MIGRATOR_DB_PASSWORD}@db:5432/agent_collab_hub
+      DATABASE_URL: postgres://agent_hub_runtime:${APP_DB_PASSWORD}@db:5432/agent_collab_hub
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["npm", "run", "db:migrate"]
+
+  web:
+    build:
+      context: ./apps/web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://agent_hub_runtime:${APP_DB_PASSWORD}@db:5432/agent_collab_hub
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3200}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Set BETTER_AUTH_SECRET in .env}
+      MCP_RESOURCE_URL: ${MCP_RESOURCE_URL:-http://localhost:3200/api/mcp}
+    ports:
+      - "127.0.0.1:3200:3200"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:

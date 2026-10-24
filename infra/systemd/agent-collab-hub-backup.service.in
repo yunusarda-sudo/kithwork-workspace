@@ -1,0 +1,36 @@
+# Managed by the Kithwork backup timer installer.
+# Docker socket access is privileged; keep this unit and its executable checkout root-owned.
+[Unit]
+Description=Create a private Kithwork PostgreSQL backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=@APP_ROOT@
+UMask=0077
+StateDirectory=agent-collab-hub-backup
+StateDirectoryMode=0700
+Environment=BACKUP_OUTPUT_DIR=/var/lib/agent-collab-hub-backup
+Environment=BACKUP_RETENTION_DAYS=30
+Environment=DOCKER_HOST=unix:///var/run/docker.sock
+ExecStart=/usr/bin/bash @APP_ROOT@/scripts/backup-production.sh
+TimeoutStartSec=infinity
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+LockPersonality=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+RestrictAddressFamilies=AF_UNIX
+SystemCallArchitectures=native
+SystemCallFilter=~@mount

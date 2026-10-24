@@ -1,0 +1,21 @@
+# Dependencies and generated web output
+**/node_modules/
+**/.next/
+**/out/
+**/dist/
+**/coverage/
+backups/
+*.dump
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# OS/editor noise
+.DS_Store
+.idea/
+.vscode/
+
+# TypeScript build metadata
+*.tsbuildinfo

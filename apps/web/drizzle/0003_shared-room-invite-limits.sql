@@ -1,0 +1,2 @@
+ALTER TABLE "room_invites" ADD CONSTRAINT "room_invites_uses_limit_check" CHECK ("room_invites"."uses_limit" between 1 and 100);--> statement-breakpoint
+ALTER TABLE "room_invites" ADD CONSTRAINT "room_invites_uses_check" CHECK ("room_invites"."uses" between 0 and "room_invites"."uses_limit");

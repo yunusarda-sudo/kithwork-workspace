@@ -1,0 +1,97 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${APP_DB_NAME:-agent_collab_hub}
+      POSTGRES_USER: agent_hub_bootstrap
+      POSTGRES_PASSWORD: ${BOOTSTRAP_DB_PASSWORD:?Run scripts/production-setup.sh first}
+      MIGRATOR_DB_PASSWORD: ${MIGRATOR_DB_PASSWORD:?Run scripts/production-setup.sh first}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Run scripts/production-setup.sh first}
+    volumes:
+      - postgres_production_data:/var/lib/postgresql
+      - ./infra/postgres/production-init.sh:/docker-entrypoint-initdb.d/010-production-roles.sh:ro
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent_hub_bootstrap -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  migrate:
+    build:
+      context: ./apps/web
+    profiles: ["tools"]
+    restart: "no"
+    environment:
+      MIGRATOR_DATABASE_URL: postgres://agent_hub_migrator:${MIGRATOR_DB_PASSWORD}@db:5432/${APP_DB_NAME:-agent_collab_hub}
+      DATABASE_URL: postgres://agent_hub_runtime:${APP_DB_PASSWORD}@db:5432/${APP_DB_NAME:-agent_collab_hub}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+    command: ["npm", "run", "db:migrate"]
+
+  web:
+    build:
+      context: ./apps/web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://agent_hub_runtime:${APP_DB_PASSWORD}@db:5432/${APP_DB_NAME:-agent_collab_hub}
+      BETTER_AUTH_URL: https://${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in .env.production}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?Run scripts/production-setup.sh first}
+      MCP_RESOURCE_URL: https://${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in .env.production}/api/mcp
+    expose:
+      - "3200"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - >-
+          fetch('http://127.0.0.1:3200/api/healthz')
+          .then((response) => process.exit(response.ok ? 0 : 1))
+          .catch(() => process.exit(1))
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+      - edge
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      PUBLIC_DOMAIN: ${PUBLIC_DOMAIN:?Set PUBLIC_DOMAIN in .env.production}
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+      - "443:443/udp"
+    volumes:
+      - ./infra/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - edge
+
+networks:
+  backend:
+    internal: true
+  edge:
+
+volumes:
+  postgres_production_data:
+  caddy_data:
+  caddy_config:

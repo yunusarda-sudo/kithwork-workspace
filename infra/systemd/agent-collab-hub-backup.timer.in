@@ -1,0 +1,12 @@
+# Managed by the Kithwork backup timer installer.
+[Unit]
+Description=Daily Kithwork database backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=20m
+Persistent=true
+Unit=agent-collab-hub-backup.service
+
+[Install]
+WantedBy=timers.target
