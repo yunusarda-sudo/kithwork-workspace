@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" fill="none">
+  <defs>
+    <linearGradient id="backdrop" x1="70" y1="35" x2="1130" y2="690" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAF0FC"/>
+      <stop offset="1" stop-color="#F6F7FB"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#2858D7"/>
+      <stop offset="1" stop-color="#7EA2F4"/>
+    </linearGradient>
+    <filter id="shadow" x="78" y="63" width="1044" height="608" color-interpolation-filters="sRGB" filterUnits="userSpaceOnUse">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="12"/>
+      <feGaussianBlur stdDeviation="16"/>
+      <feComposite in2="hardAlpha" operator="out"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.12 0 0 0 0 0.2 0 0 0 0 0.18 0 0 0 0.13 0"/>
+      <feBlend in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="720" rx="32" fill="url(#backdrop)"/>
+  <circle cx="1100" cy="96" r="130" fill="#DBE6FA" opacity=".55"/>
+  <circle cx="100" cy="650" r="160" fill="#E8EDF7" opacity=".5"/>
+  <g filter="url(#shadow)">
+    <rect x="110" y="91" width="980" height="538" rx="22" fill="#FCFDFC"/>
+    <path d="M132 91h188v538H132a22 22 0 0 1-22-22V113a22 22 0 0 1 22-22Z" fill="#F2F6F3"/>
+    <path d="M320 91h748a22 22 0 0 1 22 22v48H320V91Z" fill="#fff"/>
+    <path d="M320 161h770" stroke="#E5EBE7"/>
+    <rect x="132" y="111" width="30" height="30" rx="9" fill="url(#brand)"/>
+    <path d="M140 126h7l4-6 5 12 4-6h5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="171" y="131" fill="#1C2B26" font-family="Inter,Arial,sans-serif" font-size="17" font-weight="700">Kithwork</text>
+    <text x="135" y="184" fill="#718078" font-family="Inter,Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1.2">YOUR WORKSPACE</text>
+    <rect x="130" y="198" width="166" height="36" rx="9" fill="#E6EDFC"/>
+    <circle cx="145" cy="216" r="4" fill="#4C70D7"/>
+    <text x="157" y="220" fill="#314D9A" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="600">Product team</text>
+    <circle cx="145" cy="258" r="4" fill="#A5B4AC"/>
+    <text x="157" y="262" fill="#65736C" font-family="Inter,Arial,sans-serif" font-size="12">Research room</text>
+    <path d="M136 299h151" stroke="#E0E7E2"/>
+    <text x="136" y="326" fill="#718078" font-family="Inter,Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="1">TEAM CONTEXT</text>
+    <text x="148" y="360" fill="#506159" font-family="Inter,Arial,sans-serif" font-size="12">▤  Tasks</text>
+    <text x="148" y="393" fill="#506159" font-family="Inter,Arial,sans-serif" font-size="12">✳  Knowledge</text>
+    <text x="148" y="426" fill="#506159" font-family="Inter,Arial,sans-serif" font-size="12">◷  Activity</text>
+    <rect x="135" y="566" width="158" height="42" rx="11" fill="#fff" stroke="#E1E8E3"/>
+    <circle cx="153" cy="587" r="11" fill="#E6D4BE"/>
+    <text x="153" y="591" text-anchor="middle" fill="#594638" font-family="Inter,Arial,sans-serif" font-size="9" font-weight="700">Y</text>
+    <text x="171" y="584" fill="#293831" font-family="Inter,Arial,sans-serif" font-size="10" font-weight="600">Your account</text>
+    <text x="171" y="598" fill="#819087" font-family="Inter,Arial,sans-serif" font-size="9">Human-led by design</text>
+
+    <circle cx="348" cy="126" r="4" fill="#F0B86A"/>
+    <circle cx="363" cy="126" r="4" fill="#81B89D"/>
+    <circle cx="378" cy="126" r="4" fill="#A3C9B4"/>
+    <text x="414" y="131" fill="#65736C" font-family="Inter,Arial,sans-serif" font-size="11">Product team</text>
+    <rect x="963" y="109" width="105" height="33" rx="9" fill="#fff" stroke="#E0E7E2"/>
+    <circle cx="980" cy="126" r="4" fill="#3A9B7D"/>
+    <text x="991" y="130" fill="#506159" font-family="Inter,Arial,sans-serif" font-size="10" font-weight="600">2 members</text>
+
+    <text x="355" y="207" fill="#1D2E27" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700">A room your whole team can use.</text>
+    <text x="355" y="230" fill="#75837B" font-family="Inter,Arial,sans-serif" font-size="12">Tasks, reviewed knowledge, and activity — shared with the agents you choose.</text>
+    <rect x="355" y="254" width="340" height="208" rx="15" fill="#fff" stroke="#E3EAE5"/>
+    <text x="376" y="283" fill="#26372F" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">Team tasks</text>
+    <text x="376" y="303" fill="#829087" font-family="Inter,Arial,sans-serif" font-size="10">Progress your people and agents can follow</text>
+    <rect x="375" y="321" width="300" height="1" fill="#EDF1EE"/>
+    <circle cx="389" cy="348" r="7" stroke="#A8B7AE" stroke-width="1.5"/>
+    <text x="406" y="352" fill="#35453D" font-family="Inter,Arial,sans-serif" font-size="11">Agree on our room workflow</text>
+    <rect x="594" y="337" width="61" height="21" rx="10.5" fill="#F2F4F3"/>
+    <text x="624" y="351" text-anchor="middle" fill="#69776F" font-family="Inter,Arial,sans-serif" font-size="9">To do</text>
+    <circle cx="389" cy="385" r="7" stroke="#A8B7AE" stroke-width="1.5"/>
+    <path d="m386 385 2 2 4-5" stroke="#328A73" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="406" y="389" fill="#79877F" font-family="Inter,Arial,sans-serif" font-size="11">Review launch checklist</text>
+    <rect x="584" y="374" width="71" height="21" rx="10.5" fill="#E8F3EC"/>
+    <text x="619" y="388" text-anchor="middle" fill="#39755B" font-family="Inter,Arial,sans-serif" font-size="9">Complete</text>
+    <rect x="375" y="414" width="300" height="30" rx="8" fill="#F7F9F7"/>
+    <text x="525" y="433" text-anchor="middle" fill="#708078" font-family="Inter,Arial,sans-serif" font-size="10">+  Add a task for the room</text>
+
+    <rect x="713" y="254" width="345" height="208" rx="15" fill="#fff" stroke="#E3EAE5"/>
+    <text x="735" y="283" fill="#26372F" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">Shared knowledge</text>
+    <rect x="955" y="267" width="81" height="22" rx="11" fill="#E6F2EA"/>
+    <circle cx="968" cy="278" r="3" fill="#3C9875"/>
+    <text x="1001" y="282" text-anchor="middle" fill="#38785D" font-family="Inter,Arial,sans-serif" font-size="9" font-weight="600">APPROVED</text>
+    <text x="735" y="321" fill="#35453D" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="600">Room working agreement</text>
+    <text x="735" y="344" fill="#748179" font-family="Inter,Arial,sans-serif" font-size="10">Members propose changes; the room owner</text>
+    <text x="735" y="360" fill="#748179" font-family="Inter,Arial,sans-serif" font-size="10">approves the version that becomes the reference.</text>
+    <path d="M735 378h300" stroke="#EDF1EE"/>
+    <text x="735" y="400" fill="#849087" font-family="Inter,Arial,sans-serif" font-size="9">VERSION 1</text>
+    <text x="735" y="423" fill="#65736C" font-family="Inter,Arial,sans-serif" font-size="10">Proposed by <tspan fill="#35453D" font-weight="600">Kithwork teammate</tspan></text>
+    <rect x="735" y="435" width="110" height="1" fill="#fff"/>
+
+    <rect x="355" y="480" width="703" height="119" rx="15" fill="#fff" stroke="#E3EAE5"/>
+    <text x="376" y="509" fill="#26372F" font-family="Inter,Arial,sans-serif" font-size="14" font-weight="700">Room activity</text>
+    <text x="1036" y="509" text-anchor="end" fill="#849087" font-family="Inter,Arial,sans-serif" font-size="9">UPDATES AS THE TEAM WORKS</text>
+    <circle cx="385" cy="540" r="7" fill="#E7F2ED"/>
+    <path d="M382 540h6m-3-3v6" stroke="#398B72" stroke-width="1.2" stroke-linecap="round"/>
+    <text x="402" y="544" fill="#526159" font-family="Inter,Arial,sans-serif" font-size="10">A teammate joined the room</text>
+    <text x="1026" y="544" text-anchor="end" fill="#98A39D" font-family="Inter,Arial,sans-serif" font-size="9">just now</text>
+    <circle cx="385" cy="570" r="7" fill="#F5EEE2"/>
+    <path d="M382 570h6" stroke="#B48442" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="402" y="574" fill="#526159" font-family="Inter,Arial,sans-serif" font-size="10">Owner approved a knowledge version</text>
+    <text x="1026" y="574" text-anchor="end" fill="#98A39D" font-family="Inter,Arial,sans-serif" font-size="9">a moment ago</text>
+  </g>
+  <text x="600" y="684" text-anchor="middle" fill="#60736A" font-family="Inter,Arial,sans-serif" font-size="11" letter-spacing=".3">A product preview illustration · Kithwork keeps people in control of shared context</text>
+</svg>

@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1 --port 3200",
+    "dev": "next dev --hostname localhost --port 3200",
     "build": "next build",
-    "start": "next start --hostname 127.0.0.1 --port 3200",
+    "start": "next start --hostname localhost --port 3200",
     "lint": "eslint",
     "db:generate": "node scripts/run-drizzle-kit.mjs generate",
     "db:migrate": "node scripts/migrate.mjs",

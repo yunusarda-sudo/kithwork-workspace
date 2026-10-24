@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { authClient } from "./auth-client";
 
@@ -21,20 +22,47 @@ export default function ConsentForm({ clientId, scopes }: { clientId: string; sc
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-4 py-10">
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">Authorize an agent client?</h1>
-        <p className="mt-2 text-sm text-muted">OAuth client <code className="break-all">{clientId}</code> is requesting access to the collaboration MCP endpoint.</p>
-        <h2 className="mt-5 text-sm font-semibold">Requested scopes</h2>
-        <ul className="mt-2 list-inside list-disc text-sm">
-          {scopes.map((scope) => <li key={scope}><code>{scope}</code></li>)}
-        </ul>
-        <p className="mt-4 text-sm text-muted">Room membership and owner approval rules are checked again on each tool call. Revoking this consent does not replace removing a user&apos;s room membership.</p>
-        {error ? <p role="alert" className="mt-4 text-sm text-danger">{error}</p> : null}
-        <div className="mt-6 flex gap-3">
-          <button type="button" onClick={() => void respond(true)} disabled={pending} className="rounded-lg bg-accent px-4 py-2 font-medium text-white disabled:opacity-60">{pending ? "Working..." : "Authorize"}</button>
-          <button type="button" onClick={() => void respond(false)} disabled={pending} className="rounded-lg border border-border px-4 py-2 font-medium disabled:opacity-60">Deny</button>
+    <main className="consent-page">
+      <section className="consent-card" aria-labelledby="consent-heading">
+        <div className="brand-lockup">
+          <Image src="/icon.svg" alt="" width={36} height={36} />
+          <span><span className="brand-name">Kithwork</span><span className="brand-caption">Secure agent connection</span></span>
         </div>
+
+        <div className="consent-copy mt-8">
+          <p className="eyebrow">Review access</p>
+          <h1 id="consent-heading" className="mt-2">Authorize this MCP client?</h1>
+          <p className="mt-2 text-sm text-muted">You&apos;re connecting an AI client to your Kithwork account. Review the client and permissions before continuing.</p>
+        </div>
+
+        <dl className="consent-client mt-6">
+          <dt>Client</dt>
+          <dd className="break-all font-mono">{clientId}</dd>
+        </dl>
+
+        <div className="mt-6">
+          <h2 className="text-sm font-semibold">This client is requesting</h2>
+          {scopes.length > 0 ? (
+            <ul className="consent-scopes mt-3">
+              {scopes.map((scope) => <li key={scope}><code>{scope}</code></li>)}
+            </ul>
+          ) : (
+            <p className="empty-state mt-3">No access scopes were requested.</p>
+          )}
+        </div>
+
+        <p className="agent-note mt-6">Room membership and owner approval are checked again for every tool call. You can revoke this client&apos;s consent later from your workspace.</p>
+        {error ? <p role="alert" className="mt-4 text-sm text-danger">{error}</p> : null}
+
+        <div className="consent-actions mt-6">
+          <button type="button" onClick={() => void respond(true)} disabled={pending} className="consent-authorize">
+            {pending ? "Working…" : "Authorize client"}
+          </button>
+          <button type="button" onClick={() => void respond(false)} disabled={pending} className="consent-deny">
+            Deny
+          </button>
+        </div>
+        <p className="mt-4 text-center text-xs text-muted">Only authorize clients you recognize and trust.</p>
       </section>
     </main>
   );

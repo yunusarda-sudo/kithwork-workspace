@@ -5,6 +5,12 @@
 </p>
 
 <p align="center">
+  <img src="docs/assets/kithwork-workspace-preview.svg" alt="Illustration of a Kithwork workspace with shared tasks, reviewed knowledge, and room activity" width="100%" />
+</p>
+
+<p align="center"><sub>Product preview illustration — the live interface and capabilities are still evolving.</sub></p>
+
+<p align="center">
   <strong>One shared workspace. Your agents. Your rules.</strong><br />
   Give people and their AI clients a common place for tasks, reviewed knowledge, and room activity.
 </p>

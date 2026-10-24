@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { authClient } from "./auth-client";
 
@@ -46,95 +48,88 @@ export default function AuthPanel() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-10">
-      <section className="rounded-xl border border-border bg-surface p-6 shadow-sm">
-        <h1 className="text-2xl font-bold">Collaboration workspace</h1>
-        <p className="mt-2 text-sm text-muted">
-          Sign in or create a local account to access rooms.
-        </p>
+    <main className="auth-page">
+      <div className="auth-card">
+        <section className="auth-intro" aria-label="About Kithwork">
+          <Link className="brand-lockup" href="/" aria-label="Kithwork home">
+            <Image src="/icon.svg" alt="" width={38} height={38} />
+            <span className="brand-name">Kithwork</span>
+          </Link>
+          <div className="auth-intro-copy">
+            <p className="eyebrow">A shared workspace for your team</p>
+            <h1>Shared work, with people in control.</h1>
+            <p>
+              Bring your team&apos;s tasks, reviewed knowledge, and AI clients into one room. Everyone connects with their own account; people stay in charge of what becomes shared knowledge.
+            </p>
+          </div>
+          <ul className="auth-benefits">
+            <li><span className="auth-benefit-mark" aria-hidden="true">01</span><span>People approve shared knowledge</span></li>
+            <li><span className="auth-benefit-mark" aria-hidden="true">02</span><span>Rooms keep access scoped</span></li>
+            <li><span className="auth-benefit-mark" aria-hidden="true">03</span><span>Connect the AI clients you choose</span></li>
+          </ul>
+        </section>
 
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("signin")}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-              mode === "signin"
-                ? "bg-accent text-white"
-                : "bg-surface-muted text-foreground"
-            }`}
-          >
-            Sign in
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("signup")}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-              mode === "signup"
-                ? "bg-accent text-white"
-                : "bg-surface-muted text-foreground"
-            }`}
-          >
-            Sign up
-          </button>
-        </div>
+        <section className="auth-form-panel" aria-labelledby="auth-heading">
+          <p className="eyebrow">Workspace access</p>
+          <h2 id="auth-heading" className="mt-2">{mode === "signin" ? "Welcome back" : "Create your account"}</h2>
+          <p>
+            {mode === "signin"
+              ? "Sign in to open your rooms. Need to join a team? Use the invite token from the room owner after signing in."
+              : "Create an account, then set up a room or join one with an invite from its owner."}
+          </p>
 
-        <form className="mt-5 space-y-4" onSubmit={handleSubmit}>
-          {mode === "signup" ? (
-            <label className="block text-sm font-medium">
-              Name
+          <div className="auth-mode-switch" role="group" aria-label="Account action">
+            <button type="button" className="auth-mode-button" onClick={() => setMode("signin")} aria-pressed={mode === "signin"}>Sign in</button>
+            <button type="button" className="auth-mode-button" onClick={() => setMode("signup")} aria-pressed={mode === "signup"}>Create account</button>
+          </div>
+
+          <form className="auth-form space-y-4" onSubmit={handleSubmit}>
+            {mode === "signup" ? (
+              <label>
+                Your name
+                <input
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  autoComplete="name"
+                  required
+                  maxLength={120}
+                />
+              </label>
+            ) : null}
+
+            <label>
+              Email address
               <input
-                className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                autoComplete="name"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                autoComplete="email"
                 required
-                maxLength={120}
+                maxLength={254}
               />
             </label>
-          ) : null}
 
-          <label className="block text-sm font-medium">
-            Email
-            <input
-              type="email"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              autoComplete="email"
-              required
-              maxLength={254}
-            />
-          </label>
+            <label>
+              Password
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                required
+                minLength={8}
+                maxLength={128}
+              />
+            </label>
 
-          <label className="block text-sm font-medium">
-            Password
-            <input
-              type="password"
-              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              autoComplete={mode === "signup" ? "new-password" : "current-password"}
-              required
-              minLength={8}
-              maxLength={128}
-            />
-          </label>
+            {error ? <p role="alert" className="text-sm text-danger">{error}</p> : null}
 
-          {error ? (
-            <p role="alert" className="text-sm text-danger">
-              {error}
-            </p>
-          ) : null}
-
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded-lg bg-accent px-4 py-2 font-medium text-white disabled:opacity-60"
-          >
-            {pending ? "Working..." : mode === "signup" ? "Create account" : "Sign in"}
-          </button>
-        </form>
-      </section>
+            <button type="submit" disabled={pending} className="auth-form-submit">
+              {pending ? "Working…" : mode === "signup" ? "Create account" : "Sign in"}
+            </button>
+          </form>
+        </section>
+      </div>
     </main>
   );
 }

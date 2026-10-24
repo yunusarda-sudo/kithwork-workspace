@@ -2,6 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 import { and, asc, desc, eq, gt, or, sql } from "drizzle-orm";
 
 import { db } from "@/db/client";
+import { user } from "@/db/auth-schema";
 import { activityEvents, knowledgeApprovals, knowledgeItems, knowledgeVersions, roomInvites, roomMembers, rooms, tasks } from "@/db/schema";
 
 type Tx = Parameters<Parameters<typeof db.transaction>[0]>[0];
@@ -122,8 +123,8 @@ export async function updateTask(userId: string, taskId: string, status: "todo" 
 export async function listKnowledge(userId: string, roomId: string) {
   return withUser(userId, async (tx) => {
     await requireMembership(tx, userId, roomId);
-    const rows = await tx.select({ id: knowledgeItems.id, title: knowledgeItems.title, content: knowledgeVersions.content, version: knowledgeVersions.version, proposedBy: knowledgeVersions.proposedBy, approvalId: knowledgeApprovals.id, createdAt: knowledgeVersions.createdAt })
-      .from(knowledgeItems).innerJoin(knowledgeVersions, eq(knowledgeVersions.itemId, knowledgeItems.id)).leftJoin(knowledgeApprovals, and(eq(knowledgeApprovals.itemId, knowledgeVersions.itemId), eq(knowledgeApprovals.version, knowledgeVersions.version)))
+    const rows = await tx.select({ id: knowledgeItems.id, title: knowledgeItems.title, content: knowledgeVersions.content, version: knowledgeVersions.version, proposedBy: user.name, approvalId: knowledgeApprovals.id, createdAt: knowledgeVersions.createdAt })
+      .from(knowledgeItems).innerJoin(knowledgeVersions, eq(knowledgeVersions.itemId, knowledgeItems.id)).leftJoin(knowledgeApprovals, and(eq(knowledgeApprovals.itemId, knowledgeVersions.itemId), eq(knowledgeApprovals.version, knowledgeVersions.version))).leftJoin(user, eq(user.id, knowledgeVersions.proposedBy))
       .where(eq(knowledgeItems.roomId, roomId)).orderBy(desc(knowledgeVersions.createdAt));
     return rows.map(({ approvalId, ...row }) => ({ ...row, status: approvalId ? "approved" : "proposed" }));
   });

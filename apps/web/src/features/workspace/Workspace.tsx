@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { authClient } from "@/features/auth/auth-client";
 import AgentConnections from "@/features/auth/AgentConnections";
@@ -49,6 +51,7 @@ export default function Workspace() {
   const [newRoomName, setNewRoomName] = useState("");
   const [inviteToken, setInviteToken] = useState("");
   const [createdInvite, setCreatedInvite] = useState<{ inviteId: string; token: string; usesLimit: number; expiresIn: string } | null>(null);
+  const [inviteCopyNotice, setInviteCopyNotice] = useState<string | null>(null);
   const [roomInvites, setRoomInvites] = useState<RoomInvite[]>([]);
   const [inviteUsesLimit, setInviteUsesLimit] = useState(100);
   const [revokingInviteId, setRevokingInviteId] = useState<string | null>(null);
@@ -196,6 +199,7 @@ export default function Workspace() {
     if (!selectedRoomId) return;
     setInviteBusy(true);
     setInviteError(null);
+    setInviteCopyNotice(null);
     setCreatedInvite(null);
     try {
       const invite = await api.createInvite(selectedRoomId, inviteUsesLimit);
@@ -208,6 +212,16 @@ export default function Workspace() {
     }
   }
 
+  async function handleCopyInvite() {
+    if (!createdInvite) return;
+    try {
+      await navigator.clipboard.writeText(createdInvite.token);
+      setInviteCopyNotice("Invite copied. Share it privately with your teammates.");
+    } catch {
+      setInviteCopyNotice("Clipboard access was blocked. Select the token and copy it manually.");
+    }
+  }
+
   async function handleRevokeInvite(inviteId: string) {
     if (!selectedRoomId || !window.confirm("Revoke this shared invitation? Anyone who has not joined yet will no longer be able to use it.")) return;
     setRevokingInviteId(inviteId);
@@ -215,7 +229,10 @@ export default function Workspace() {
     try {
       await api.revokeInvite(selectedRoomId, inviteId);
       setRoomInvites((current) => current.filter((invite) => invite.id !== inviteId));
-      if (createdInvite?.inviteId === inviteId) setCreatedInvite(null);
+      if (createdInvite?.inviteId === inviteId) {
+        setCreatedInvite(null);
+        setInviteCopyNotice(null);
+      }
     } catch (err) {
       setInviteError(err instanceof Error ? err.message : "Failed to revoke invite.");
     } finally {
@@ -336,7 +353,7 @@ export default function Workspace() {
 
   if (session.isPending) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-10 text-center text-muted">
+      <main className="mx-auto max-w-7xl px-4 py-10 text-center text-muted" aria-busy="true">
         Loading session...
       </main>
     );
@@ -350,40 +367,48 @@ export default function Workspace() {
   const selectedRoom = rooms.find((room) => room.id === selectedRoomId) ?? null;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="workspace-page text-foreground">
       <a className="skip-link" href="#main-content">
         Skip to main content
       </a>
-      <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <div>
-            <h1 className="text-xl font-bold sm:text-2xl">Collaboration workspace</h1>
-            <p className="text-sm text-muted">
-              Signed in as {user.name || user.email}
-            </p>
-          </div>
+      <header className="workspace-topbar">
+        <div className="workspace-topbar-inner mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Link className="brand-lockup" href="/" aria-label="Kithwork workspace home">
+            <Image src="/icon.svg" alt="" width={34} height={34} />
+            <span><span className="brand-name">Kithwork</span><span className="brand-caption">Team workspace</span></span>
+          </Link>
+          <div className="workspace-account">
+            <span className="workspace-avatar" aria-hidden="true">{(user.name || user.email).trim().slice(0, 1).toUpperCase()}</span>
+            <span className="workspace-account-name">{user.name || user.email}</span>
           <button
             type="button"
             onClick={handleSignOut}
             disabled={signOutPending}
-            className="rounded-lg border border-border bg-surface-muted px-4 py-2 text-sm font-medium disabled:opacity-60"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm font-semibold shadow-sm disabled:opacity-60"
           >
-            {signOutPending ? "Signing out..." : "Sign out"}
+            {signOutPending ? "Signing out…" : "Sign out"}
           </button>
+          </div>
         </div>
       </header>
 
-      <main id="main-content" className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <main id="main-content" className="workspace-content">
+        <div className="workspace-intro">
+          <div>
+            <p className="eyebrow">Your team workspace</p>
+            <h1>Make shared work easier.</h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted">Keep room tasks, reviewed knowledge, and agent access clear for everyone on the team.</p>
+          </div>
+        </div>
         <AgentConnections />
-        <section aria-labelledby="rooms-heading" className="mb-6 rounded-xl border border-border bg-surface p-5">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <section aria-labelledby="rooms-heading" className="workspace-panel mb-6 p-5 sm:p-6">
+          <div className="panel-heading flex-col sm:flex-row sm:items-end">
             <div className="flex-1">
-              <h2 id="rooms-heading" className="text-lg font-semibold">
-                Rooms
+              <p className="eyebrow">Organize your team</p>
+              <h2 id="rooms-heading" className="mt-1">
+                Rooms &amp; members
               </h2>
-              <p className="mt-1 text-sm text-muted">
-                Switch between rooms or create a new one.
-              </p>
+              <p>Choose a room, create a new one, or join a teammate&apos;s room.</p>
             </div>
             <form className="flex flex-col gap-2 sm:flex-row" onSubmit={handleCreateRoom}>
               <label className="sr-only" htmlFor="new-room-name">
@@ -391,7 +416,7 @@ export default function Workspace() {
               </label>
               <input
                 id="new-room-name"
-                className="rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+                className="min-w-0 border border-border bg-background px-3 py-2 text-foreground sm:w-56"
                 value={newRoomName}
                 onChange={(event) => setNewRoomName(event.target.value)}
                 placeholder="New room name"
@@ -401,7 +426,7 @@ export default function Workspace() {
               <button
                 type="submit"
                 disabled={roomActionPending || !newRoomName.trim()}
-                className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
               >
                 {roomActionPending ? "Creating..." : "Create room"}
               </button>
@@ -431,7 +456,14 @@ export default function Workspace() {
                 </button>
               </div>
             ) : rooms.length === 0 ? (
-              <p className="text-sm text-muted">No rooms yet. Create one to get started.</p>
+              <div className="empty-state">
+                <p className="font-semibold text-foreground">Start your shared workspace</p>
+                <ol className="mt-2 list-inside list-decimal space-y-1 text-sm text-muted">
+                  <li>Create a room for one team or project.</li>
+                  <li>Create an invite and send it privately to teammates.</li>
+                  <li>Everyone signs in with their own account; agents use the MCP setup above.</li>
+                </ol>
+              </div>
             ) : (
               <label className="block text-sm font-medium">
                 Current room
@@ -441,6 +473,7 @@ export default function Workspace() {
                   onChange={(event) => {
                     setSelectedRoomId(event.target.value);
                     setCreatedInvite(null);
+                    setInviteCopyNotice(null);
                     setInviteError(null);
                   }}
                 >
@@ -453,12 +486,8 @@ export default function Workspace() {
               </label>
             )}
           </div>
-          {selectedRoom ? (
-            <p className="mt-3 text-xs text-muted">
-              Room id: <span className="font-mono">{selectedRoom.id}</span>
-            </p>
-          ) : null}
-          <div className="mt-4 grid gap-4 border-t border-border pt-4 md:grid-cols-2">
+          {selectedRoom ? <details className="room-details mt-3"><summary>Room details</summary><p className="mt-1 font-mono">{selectedRoom.id}</p></details> : null}
+          <div className="room-invites-grid mt-4">
               {selectedRoom?.role === "owner" ? (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-end gap-2">
@@ -473,7 +502,16 @@ export default function Workspace() {
                     </button>
                   </div>
                   <p className="text-xs text-muted">One token can be used by the selected number of people to join this same room. It expires in 7 days. Share privately; each person signs in with their own account. Revoke it any time below.</p>
-                  {createdInvite ? <p className="break-all rounded-lg bg-surface-muted p-3 font-mono text-xs" role="status">Shared invite token (up to {createdInvite.usesLimit} people, expires in {createdInvite.expiresIn}). Copy it now and share privately; it is not shown again: {createdInvite.token}</p> : null}
+                  {createdInvite ? (
+                    <div className="space-y-2 rounded-lg bg-surface-muted p-3" role="status">
+                      <p className="text-xs">Invite for up to {createdInvite.usesLimit} people · expires in {createdInvite.expiresIn}. It is shown once; share it privately.</p>
+                      <div className="flex flex-col gap-2 sm:flex-row">
+                        <input aria-label="New room invite token" readOnly onFocus={(event) => event.currentTarget.select()} value={createdInvite.token} className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs" />
+                        <button type="button" onClick={() => void handleCopyInvite()} className="rounded-lg border border-border px-3 py-2 text-sm font-medium">Copy invite</button>
+                      </div>
+                      {inviteCopyNotice ? <p className="text-xs text-muted">{inviteCopyNotice}</p> : null}
+                    </div>
+                  ) : null}
                   {roomInvites.length > 0 ? (
                     <ul className="space-y-2" aria-label="Active shared room invites">
                       {roomInvites.map((invite) => (
@@ -499,14 +537,13 @@ export default function Workspace() {
 
         {selectedRoomId ? (
           <div className="space-y-6">
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section aria-labelledby="tasks-heading" className="rounded-xl border border-border bg-surface p-5">
-              <h2 id="tasks-heading" className="text-lg font-semibold">
+          <div className="workspace-panels-grid">
+            <section aria-labelledby="tasks-heading" className="workspace-panel p-5 sm:p-6">
+              <header className="panel-heading">
+                <div><p className="eyebrow">Work in progress</p><h2 id="tasks-heading" className="mt-1">
                 Tasks
-              </h2>
-              <p className="mt-1 text-sm text-muted">
-                Create tasks and update their status.
-              </p>
+              </h2><p>Create and track work for this room.</p></div>
+              </header>
 
               <form className="mt-4 flex flex-col gap-2 sm:flex-row" onSubmit={handleCreateTask}>
                 <label className="sr-only" htmlFor="new-task-title">
@@ -524,7 +561,7 @@ export default function Workspace() {
                 <button
                   type="submit"
                   disabled={taskActionPending || !newTaskTitle.trim()}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white disabled:opacity-60"
+                  className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
                 >
                   {taskActionPending ? "Adding..." : "Add task"}
                 </button>
@@ -553,7 +590,7 @@ export default function Workspace() {
                     </button>
                   </div>
                 ) : tasks.length === 0 ? (
-                  <p className="text-sm text-muted">No tasks in this room.</p>
+                  <p className="empty-state">No tasks in this room yet. Add the first task above.</p>
                 ) : (
                   <ul className="divide-y divide-border">
                     {tasks.map((task) => (
@@ -573,7 +610,7 @@ export default function Workspace() {
                         </label>
                         <select
                           id={`task-status-${task.id}`}
-                          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
+                          className={`task-status-select task-status-${task.status} rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground`}
                           value={task.status}
                           disabled={updatingTaskId === task.id}
                           onChange={(event) =>
@@ -591,13 +628,12 @@ export default function Workspace() {
               </div>
             </section>
 
-            <section aria-labelledby="knowledge-heading" className="rounded-xl border border-border bg-surface p-5">
-              <h2 id="knowledge-heading" className="text-lg font-semibold">
+            <section aria-labelledby="knowledge-heading" className="workspace-panel p-5 sm:p-6">
+              <header className="panel-heading">
+                <div><p className="eyebrow">Shared reference</p><h2 id="knowledge-heading" className="mt-1">
                 Knowledge
-              </h2>
-              <p className="mt-1 text-sm text-muted">
-                Propose immutable knowledge versions and approve a specific version.
-              </p>
+              </h2><p>Propose changes; room owners approve the shared version.</p></div>
+              </header>
 
               <form className="mt-4 space-y-3" onSubmit={handleProposeKnowledge}>
                 <label className="block text-sm font-medium">
@@ -657,14 +693,14 @@ export default function Workspace() {
                     </button>
                   </div>
                 ) : knowledge.length === 0 ? (
-                  <p className="text-sm text-muted">No knowledge items in this room.</p>
+                  <p className="empty-state">No shared knowledge yet. Add a reference for everyone in this room.</p>
                 ) : (
                   <ul className="space-y-4">
                     {knowledge.map((item) => (
-                      <li key={`${item.id}-${item.version}`} className="rounded-lg border border-border p-4">
+                      <li key={`${item.id}-${item.version}`} className="knowledge-item">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <h3 className="text-sm font-semibold">{item.title}</h3>
-                          <span className="inline-flex w-fit rounded-full bg-surface-muted px-2.5 py-0.5 text-xs font-semibold text-muted">
+                          <span className={`status-pill status-${item.status}`}>
                             {item.status}
                           </span>
                         </div>
@@ -681,8 +717,7 @@ export default function Workspace() {
                             <dd>{item.proposedBy || "Unknown"}</dd>
                           </div>
                           <div className="col-span-2">
-                            <dt className="font-medium">Item id</dt>
-                            <dd className="font-mono">{item.id}</dd>
+                            <details className="room-details"><summary>Record details</summary><p className="mt-1 break-all font-mono">{item.id}</p></details>
                           </div>
                         </dl>
                         {selectedRoom?.role === "owner" && item.status !== "approved" ? (
@@ -722,11 +757,12 @@ export default function Workspace() {
               </div>
             </section>
           </div>
-          <section aria-labelledby="activity-heading" className="rounded-xl border border-border bg-surface p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+          <section aria-labelledby="activity-heading" className="workspace-panel p-5 sm:p-6">
+            <div className="panel-heading flex-wrap">
               <div>
-                <h2 id="activity-heading" className="text-lg font-semibold">Room activity</h2>
-                <p className="mt-1 text-sm text-muted">Recent room actions. This list refreshes automatically every 15 seconds.</p>
+                <p className="eyebrow">Room history</p>
+                <h2 id="activity-heading" className="mt-1">Activity</h2>
+                <p>Recent room actions; refreshes every 15 seconds.</p>
               </div>
               <button
                 type="button"
@@ -748,9 +784,9 @@ export default function Workspace() {
                   </button>
                 </div>
               ) : activity.length === 0 ? (
-                <p className="text-sm text-muted">No activity recorded in this room yet.</p>
+                <p className="empty-state">Nothing has happened in this room yet.</p>
               ) : (
-                <ol className="divide-y divide-border">
+                <ol className="activity-list divide-y divide-border">
                   {activity.map((item) => (
                     <li key={item.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
                       <span className="text-sm font-medium">{activityLabel(item.type)}</span>
@@ -765,7 +801,7 @@ export default function Workspace() {
           </section>
           </div>
         ) : (
-          <p className="text-sm text-muted">Select or create a room to view tasks and knowledge.</p>
+          <p className="empty-state">Select or create a room to view tasks and knowledge.</p>
         )}
       </main>
     </div>

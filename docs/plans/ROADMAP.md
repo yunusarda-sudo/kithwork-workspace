@@ -56,6 +56,20 @@ Efor, tek deneyimli geliştirici için yaklaşık kişi-gün aralığıdır; 3 k
 - [x] systemd Linux hostları için günlük yerel yedek zamanlayıcısı ve sınırlı dosya adı/yaş kapsamıyla 30 günlük varsayılan saklama ekle; timer kurulumunu bu geliştirme makinesinde çalıştırma.
 - [ ] Compose temiz başlangıç, Compose volume yedeği, migration upgrade ve self-host runbook kabulini tamamla.
 
+### P0 — İlk takımın kullanılabilir akışı (IN_PROGRESS)
+
+İlk hesap, oda, davet ve agent bağlantısı tek bir anlaşılır web akışında tamamlanabilmeli. Gerçek yerel tarayıcı denemesinde `npm run dev` adresi `127.0.0.1:3200` gösterirken Better Auth `localhost:3200` bekledi; signup `Invalid origin` ile reddedildi. Ayrıca davet token'ı tek sefer gösteriliyor ama kopyalama eylemi yok ve web arayüzünde MCP kurulum adımı sunulmuyor.
+
+Kabul ölçütleri:
+
+- Terminalin verdiği yerel URL ile signup/login origin uyuşmazlığı olmadan çalışır.
+- Yeni kullanıcı ilk odasını kurar, daveti güvenli biçimde kopyalar; ikinci test hesabı katılıp aynı görev ve bilgiyi görür.
+- Arayüz MCP adresini kopyalatır, OAuth/oda adımlarını açıklar ve dış istemciler için HTTPS gereksinimini doğru yerde belirtir.
+- Üye görev oluşturur, bilgi önerir; yalnız owner önerilen sürümü onaylayabilir.
+- Bu yerel kabul, gerçek Claude/ChatGPT remote istemci veya production kabulü diye raporlanmaz.
+
+İlerleme: İlk kullanım engelleri gerçek tarayıcıda yeniden üretildi ve düzeltildi. `npm run dev` artık doğrulanmış `http://localhost:3200` adresini veriyor; bu URL'den yeni hesap açma, boş oda onboarding'i, oda oluşturma ve tek gösterimli davet üretme akışı izole PostgreSQL'de kabul edildi. Davette kopyalama düğmesi; MCP URL/prompt kopyalama alanları, bağlantı adımları ve yalnız yerel erişim uyarısı eklendi. İkinci test hesabının ortak oda verisini görmesi, görev oluşturması ve owner onayının korunması önceki kabul akışında doğrulanmıştı; isim gösterimi de bu turda tarayıcıda doğrulandı. Sonraki kabul: düğmelerin gerçek panoya kopyalaması, HTTPS üzerinden temiz self-host başlangıcı ve harici ChatGPT/Claude istemcilerinin OAuth/tool akışı. Bu nedenle yerel ilk kullanım iyileşti; uzaktan arkadaş/agent denemesi henüz tamamlanmış sayılmaz.
+
 ## Doğrulama planı
 
 - Her milestone için davranışı kanıtlayan kabul akışları yazılır. Oda izolasyonu her web/API/MCP/search/activity/file yolunda olumsuz testlerle kanıtlanır.
