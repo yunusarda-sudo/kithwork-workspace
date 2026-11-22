@@ -16,7 +16,7 @@ Küçük ekiplerin, her üyenin kendi AI aracını kullanarak ortak oda belleği
 1. **Önce ürün uyumu:** Muster izole runtime spike tamamlandı; güvenlik bulguları, seed hatası ve Docker/Podman yokluğu yüzünden 3 kişilik kabul doğrulanmadı. Kanıta göre taban kararı bağımsız yerel MVP inşası olarak kapandı.
 2. **Ayrı taban kararı:** Muster adoption/fork şu an seçilmedi. Orbit ve Warren tasarım referansıdır; olgunluk notları araştırma belgesinde.
 3. **Kodlama paralel ilerler:** UI OpenCode beam-free işçisi tarafından, güvenlik sınırları ve backend Codex tarafından paralel geliştirildi. Web/MCP ortak application service kullanır.
-4. **Kamuya yayın kapısı:** Marka, MIT/Apache lisans seçimi, katkı politikası, güvenlik iletişimi ve üçüncü taraf varlık/lisans denetimi gerekir. Bu görev yayın yetkisi vermez.
+4. **Kamuya yayın kapısı:** MIT lisansı seçildi ve kök `LICENSE` dosyasına eklendi. Katkı politikası, güvenlik iletişimi ve üçüncü taraf varlık/lisans denetimi hâlâ gerekir; bunlar tek başına kararlı yayın veya üretim hazır olma kanıtı değildir.
 
 ## Aşamalar
 
@@ -30,7 +30,7 @@ Efor, tek deneyimli geliştirici için yaklaşık kişi-gün aralığıdır; 3 k
 | 3 | Agent bağlantısı ve MCP P1 | 8–14 | **DONE_WITH_LIMITS** | PKCE OAuth, resource-bound token, scopes, MCP initialize/tools/call ve grant revoke akışı kodlanıp entegre HTTP istemcisiyle doğrulandı; harici Claude/Codex istemcisi doğrulanmadı |
 | 4 | Aktivite, dayanıklılık ve self-host | 6–10 | **IN_PROGRESS** | Üretim Compose/Caddy/DB rol ve operasyon taslağı eklendi; daemon smoke, gerçek sunucu TLS, offsite backup ve migration upgrade kabulü açık |
 | 5 | Dosya/GitHub ve AI opsiyonları | 8–16 | NOT_STARTED | P2/P3: oda kapsamlı dosya ve opsiyonel entegrasyonlar; AI kapalıyken çekirdek tam çalışıyor; AI hiçbir zaman otomatik onay vermiyor |
-| 6 | Pilot, açık kaynak hazırlığı ve genişleme | 5–10 | NOT_STARTED | Üç kişilik pilot; lisans/isim/tehdit modeli/katkı rehberi; kontrollü kararlı sürüm; P4 çoklu workspace ancak ölçülmüş ihtiyaçla |
+| 6 | Pilot, açık kaynak hazırlığı ve genişleme | 5–10 | NOT_STARTED | Üç kişilik pilot; MIT lisansı seçildi; tehdit modeli/katkı rehberi/üçüncü taraf lisans denetimi; kontrollü kararlı sürüm; P4 çoklu workspace ancak ölçülmüş ihtiyaçla |
 
 ## P0 görevleri
 
@@ -40,7 +40,7 @@ Efor, tek deneyimli geliştirici için yaklaşık kişi-gün aralığıdır; 3 k
 - [x] Muster izole runtime spike'ını çalıştır; seed/audit/test/daemon sınırlamalarını kaydet.
 - [x] Build/adopt/fork kararını kanıta göre güncelle: bağımsız local MVP inşası.
 - [x] Ürün adı Kithwork olarak belirlendi.
-- [ ] Açık kaynak lisansı ve yayın politikasını kararlaştır.
+- [x] Kithwork'ün özgün kod ve dokümantasyonu için MIT lisansını seçip kök `LICENSE` dosyasına ekle; üçüncü taraf bağımlılık/varlık şartlarının ayrı olduğunu README'de belirt.
 - [ ] Taslak kullanıcı akışını ekiple doğrula; prototip kapsamını bunun sonucuna göre güncelle.
 - [x] Better Auth + resmi MCP/CIMD + MCP SDK v2 tabanlı auth/MCP endpointini kur.
 - [x] PostgreSQL migrationları, runtime DB rolü, RLS politikaları ve core room/task/knowledge/invite/activity servislerini kur.
@@ -54,6 +54,8 @@ Efor, tek deneyimli geliştirici için yaklaşık kişi-gün aralığıdır; 3 k
 - [x] Oda sahibinin iptal edebildiği, 7 günlük ve en fazla 100 üyelikli ortak daveti; 20 eşzamanlı katılımcıyla limit ve tekrar denemede idempotency doğrula.
 - [x] Linux self-host için özel production Compose, Caddy otomatik HTTPS, private secret bootstrap, sınırlı DB rolleri ve ayrı DB'ye geri yükleme komutlarını/runbook'u hazırla; yapılandırmayı gerçek sunucuda çalıştırma henüz doğrulanmadı.
 - [x] systemd Linux hostları için günlük yerel yedek zamanlayıcısı ve sınırlı dosya adı/yaş kapsamıyla 30 günlük varsayılan saklama ekle; timer kurulumunu bu geliştirme makinesinde çalıştırma.
+- [x] GitHub Actions içinde Node 22 ile `npm ci`, lint, typecheck ve production build kontrollerini push/PR için tanımla; bu otomasyon PostgreSQL integration, gerçek MCP istemcisi veya production deploy kabulü sayılmaz. İlk uzak Actions çalışması bekliyor.
+- [x] Production Compose yapılandırmasını ve Docker web image'ını CI'da doğrula; canlı hostname için HTTPS redirect, sertifika, DB health ve OAuth resource URL'ini sınayan operatör smoke komutu ekle. Bunlar uzak deploy veya gerçek Claude/ChatGPT client kabulü yerine geçmez.
 - [ ] Compose temiz başlangıç, Compose volume yedeği, migration upgrade ve self-host runbook kabulini tamamla.
 
 ### P0 — İlk takımın kullanılabilir akışı (IN_PROGRESS)

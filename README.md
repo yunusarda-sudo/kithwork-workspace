@@ -17,13 +17,14 @@
 
 <p align="center">
   <a href="https://github.com/yunusarda-sudo/kithwork-workspace/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/yunusarda-sudo/kithwork-workspace?style=for-the-badge&logo=github&label=stars" /></a>
+  <a href="https://github.com/yunusarda-sudo/kithwork-workspace/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/yunusarda-sudo/kithwork-workspace/actions/workflows/ci.yml/badge.svg" /></a>
   <img alt="Node.js 22+" src="https://img.shields.io/badge/Node.js-22%2B-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
   <img alt="PostgreSQL 16+" src="https://img.shields.io/badge/PostgreSQL-16%2B-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" />
   <img alt="MCP 2025-11-25" src="https://img.shields.io/badge/MCP-2025--11--25-6554C0?style=for-the-badge" />
-  <img alt="License not selected" src="https://img.shields.io/badge/license-not%20selected-lightgrey?style=for-the-badge" />
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue?style=for-the-badge" /></a>
 </p>
 
-> **🚧 Early-stage MVP · Self-hostable, not production-ready.** Kithwork has no hosted service. Backup/restore and systemd behavior passed isolated Linux checks; a clean production deployment and remote Claude/ChatGPT MCP compatibility have not. **No open-source license has been selected**, so public visibility does not grant permission to use, modify, or redistribute this code.
+> **🚧 Early-stage MVP · Self-hostable, not production-ready.** Kithwork has no hosted service. Backup/restore and systemd behavior passed isolated Linux checks; a clean production deployment and remote Claude/ChatGPT MCP compatibility have not. Kithwork's original project code and documentation are available under the [MIT License](LICENSE); third-party dependencies and assets remain under their respective licenses.
 
 ## ✨ Shared context, human-led
 
@@ -63,7 +64,9 @@ The shared pool is intentionally focused: room membership, tasks, versioned know
 - Agents do not automatically claim tasks or message each other. People must coordinate work that is already in progress.
 - External Claude and ChatGPT OAuth, tool discovery, refresh, and revoke behavior have not yet passed client acceptance testing. See the [agent connection guide](docs/guides/CONNECT_AGENT_TO_MCP.md) for the exact boundary.
 - The self-host bundle has been exercised in an isolated Linux VM for backup/restore and systemd behavior. A clean-server production deployment, offsite restore, freshness alerting, and production RPO/RTO are not verified. See [self-hosting and recovery](docs/guides/SELF_HOSTING.md).
-- The product license, contribution policy, and public security-reporting channel are not decided/configured.
+- The MIT license is selected for Kithwork's original project code and documentation. A contribution policy, public security-reporting channel, and complete third-party asset/license audit are still open.
+
+The GitHub Actions workflow is configured to run `npm ci`, lint, typecheck, a production build, production Compose validation, and a production Docker image build on pushes and pull requests. These checks do not replace PostgreSQL integration, the live HTTPS smoke, external MCP-client acceptance, or a clean-server deployment; those remain open below.
 
 Do not use this project for sensitive production data until the deployment, security, recovery, and external-client acceptance gates are closed.
 
@@ -162,7 +165,7 @@ Schema changes belong in Drizzle source plus a reviewed migration. `db:migrate` 
 
 ## Contributing and license
 
-The project has not selected a license or published contribution rules yet. Until that decision is made, please open a discussion with the maintainers before preparing or relying on a contribution. Do not assume that public repository access grants rights to use, modify, or redistribute the code.
+Kithwork's original project code and documentation are licensed under the [MIT License](LICENSE). Third-party dependencies, assets, and other separately identified materials are governed by their own license terms. A formal contribution policy has not yet been published; please open an issue to discuss a substantial contribution before starting work. Do not include material you do not have the right to contribute.
 
 ## Security
 

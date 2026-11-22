@@ -36,6 +36,14 @@ scripts/deploy-production.sh
 docker compose --env-file .env.production -f compose.production.yaml ps
 ```
 
+Once the deployment is healthy, verify the public edge before inviting anyone:
+
+```sh
+scripts/smoke-production.sh your-domain.example
+```
+
+The smoke command checks the permanent HTTP-to-HTTPS redirect, validates the public TLS certificate using the system trust store, checks the database-backed health endpoint, and confirms OAuth protected-resource metadata advertises the matching HTTPS MCP URL. It does not create an account or OAuth grant, call MCP tools, or prove ChatGPT/Claude compatibility. Run the client-specific acceptance steps separately before onboarding users.
+
 On a systemd Linux host using the rootful Docker Engine, the optional daily local backup timer runs as root. Install the checkout under `/opt` or `/srv`; every checkout file and directory must be root-owned and not group/world-writable, and `.env.production` must have mode `0600` or stricter. This prevents a root timer from executing code writable by an unprivileged account. The installer validates rendered units with `systemd-analyze`, checks effective properties after reload, and only replaces unit files carrying its own management marker. Keep this checkout and its parent directories administrator-controlled after installation.
 
 ```sh
