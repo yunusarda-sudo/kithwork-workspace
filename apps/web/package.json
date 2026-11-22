@@ -12,7 +12,7 @@
     "db:studio": "node scripts/run-drizzle-kit.mjs studio --host 127.0.0.1",
     "db:backup": "node scripts/backup-db.mjs",
     "db:restore": "node scripts/restore-db.mjs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "next typegen && tsc --noEmit",
     "start:container": "next start --hostname 0.0.0.0 --port 3200"
   },
   "dependencies": {
